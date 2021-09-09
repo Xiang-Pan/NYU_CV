@@ -1,0 +1,24 @@
+{
+    "os": "Linux-5.12.19-1-MANJARO-x86_64-with-glibc2.10",
+    "python": "3.8.10",
+    "heartbeatAt": "2021-09-09T21:57:31.200245",
+    "startedAt": "2021-09-09T21:57:29.847524",
+    "docker": null,
+    "gpu": "NVIDIA GeForce RTX 3090",
+    "gpu_count": 1,
+    "cpu_count": 20,
+    "cuda": null,
+    "args": [],
+    "state": "running",
+    "program": "main.py",
+    "codePath": "Assignment/Assignment1_2/main.py",
+    "git": {
+        "remote": "git@github.com:Xiang-Pan/NYU_CV.git",
+        "commit": "bb3865082771e798b652ff24e336638fba24d064"
+    },
+    "email": "xiangpan@nyu.edu",
+    "root": "/home/xiangpan/Labs/NYU_CV",
+    "host": "manjaro",
+    "username": "xiangpan",
+    "executable": "/home/xiangpan/.conda/envs/pl/bin/python"
+}
