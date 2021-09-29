@@ -1,7 +1,7 @@
 '''
 Author: Xiang Pan
 Date: 2021-09-09 17:29:27
-LastEditTime: 2021-09-29 17:09:16
+LastEditTime: 2021-09-29 19:09:50
 LastEditors: Xiang Pan
 Description: 
 FilePath: /Assignment1_2/nets.py
@@ -238,8 +238,8 @@ class TfmNet(nn.Module):
         xs = xs.view(-1, 10 * 4 * 4)
         theta = self.fc_loc(xs)
         theta = theta.view(-1, 2, 3)
-        grid = F.affine_grid(theta, x.size())
-        x = F.grid_sample(x, grid)
+        grid = F.affine_grid(theta, x.size(), align_corners=True)
+        x = F.grid_sample(x, grid, align_corners=True)
         return x
 
     def forward(self, x):

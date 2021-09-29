@@ -1,7 +1,7 @@
 '''
 Author: Xiang Pan
 Date: 2021-09-09 17:23:15
-LastEditTime: 2021-09-29 17:45:05
+LastEditTime: 2021-09-29 18:59:29
 LastEditors: Xiang Pan
 Description: 
 FilePath: /Assignment1_2/task_datasets/cv_datasets.py
@@ -60,33 +60,32 @@ def get_cv_dataset(batch_size = 32):
     val_dataset = CVDataset("validation")
     return train_dataset, val_dataset, test_dataset
 
-def get_cv_dataloader(batch_size = 32):
-    train_dataset = torch.utils.data.ConcatDataset\
-                (
-                    [
-                        CVDataset("train", transform=data_transforms),
-                        CVDataset("train", transform=data_jitter_brightness),
-                        CVDataset("train", transform=data_jitter_hue),
-                        CVDataset("train", transform=data_jitter_contrast),
-                        CVDataset("train", transform=data_jitter_saturation),
-                        CVDataset("train", transform=data_translate),
-                        CVDataset("train", transform=data_rotate),
-                        CVDataset("train", transform=data_hvflip),
-                        CVDataset("train", transform=data_center),
-                        CVDataset("train", transform=data_shear),
-                    ]
-                )
-    val_dataset = CVDataset("validation", transform=data_transforms)
-    test_dataset = CVDataset("testing", transform=data_transforms)
+def get_cv_dataloader(batch_size = 32, augument = False):
+    
+    if augument:
+        train_dataset = torch.utils.data.ConcatDataset\
+                    (
+                        [
+                            CVDataset("train", transform=data_transforms),
+                            CVDataset("train", transform=data_jitter_brightness),
+                            CVDataset("train", transform=data_jitter_hue),
+                            CVDataset("train", transform=data_jitter_contrast),
+                            CVDataset("train", transform=data_jitter_saturation),
+                            CVDataset("train", transform=data_translate),
+                            CVDataset("train", transform=data_rotate),
+                            CVDataset("train", transform=data_hvflip),
+                            CVDataset("train", transform=data_center),
+                            CVDataset("train", transform=data_shear),
+                        ]
+                    )
+        val_dataset = CVDataset("validation", transform=data_transforms)
+        test_dataset = CVDataset("testing", transform=data_transforms)
+    else:
+        train_dataset, val_dataset, test_dataset = get_cv_dataset(batch_size)
     
     train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=1)
     
-    train_loader = torch.utils.data.DataLoader(
-        train_dataset,
-        batch_size=batch_size, 
-        shuffle=False, 
-        num_workers=8,
-    )
+    train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=False, num_workers=8,)
     
     val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False, num_workers=4)
     

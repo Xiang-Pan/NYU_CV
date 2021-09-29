@@ -1,7 +1,7 @@
 '''
 Author: Xiang Pan
 Date: 2021-09-09 17:21:28
-LastEditTime: 2021-09-29 18:11:35
+LastEditTime: 2021-09-29 19:02:41
 LastEditors: Xiang Pan
 Description: 
 FilePath: /Assignment1_2/main.py
@@ -39,14 +39,16 @@ def get_scheduler(optimizer, args):
         scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer, gamma=0.90)
     elif scheduler_name == 'step':
         scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer, gamma=0.1, milestones=[7])
-    elif scheduler_name == 'warmup':
-        scheduler_warmup = GradualWarmupScheduler(optimizer, multiplier=1, total_epoch=args.warmup_epochs, after_scheduler=scheduler)
     elif scheduler_name == 'ReduceLROnPlateau':
         # scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, 'max')
         # scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, 'max', patience=5,factor=0.5,verbose=True)
         scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, 'min',patience=5,factor=0.5,verbose=True)
     else:
         scheduler = None
+    if scheduler is not None:
+        if args.warmup_epochs > 0:
+            scheduler = GradualWarmupScheduler(optimizer, multiplier=1, total_epoch=args.warmup_epochs, after_scheduler=scheduler)
+            return scheduler
     return scheduler
 
 
