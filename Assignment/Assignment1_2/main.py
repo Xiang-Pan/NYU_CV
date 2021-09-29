@@ -1,7 +1,7 @@
 '''
 Author: Xiang Pan
 Date: 2021-09-09 17:21:28
-LastEditTime: 2021-09-29 19:24:11
+LastEditTime: 2021-09-29 19:47:47
 LastEditors: Xiang Pan
 Description: 
 FilePath: /Assignment1_2/main.py
@@ -52,7 +52,7 @@ def get_scheduler(optimizer, args):
     return scheduler
 
 
-def train(max_epochs, model, optimizer, train_loader, val_loader, args):
+def train(max_epochs, model, optimizer, train_loader, val_loader, test_loader, args):
     
     # print(len(train_loader))
     # print(len(train_loader))
@@ -145,18 +145,20 @@ def train(max_epochs, model, optimizer, train_loader, val_loader, args):
         output_file = open(outfile_name, "w")
         
         dataframe_dict = {"Filename" : [], "ClassId": []}
-        test_data = torch.load('./cached_datasets/testing/test.pt')
+        # test_data = torch.load('./cached_datasets/testing/test.pt')
         file_ids = pickle.load(open('./cached_datasets/testing/file_ids.pkl', 'rb'))
-        for i, data in enumerate(test_data):
-            data = data.unsqueeze(0)
-            if args.aug:
-                data = data_transforms(data)
+        
+        for batch_idx, (data, target) in enumerate(test_loader):
+            
             data = data.cuda()
+            target = target.cuda()
             output = model(data)
-            pred = output.data.max(1, keepdim=True)[1].item()
-            file_id = file_ids[i][0:5]
+            preds = output.softmax(dim=-1)
+            file_id = file_ids[batch_idx*args.batch_size:(batch_idx+1)*args.batch_size][0:5]
             dataframe_dict['Filename'].append(file_id)
-            dataframe_dict['ClassId'].append(pred)
+            dataframe_dict['ClassId'].append(preds)
+
+            
 
         df = pd.DataFrame(data=dataframe_dict)
         df.to_csv(outfile_name, index=False)
@@ -250,7 +252,7 @@ def main():
 
     # {'params': no_decay, 'weight_decay', 0}, {'params': decay}, **kwargs]
     train_dataloader, val_dataloader, test_dataloader = get_cv_dataloader(batch_size = args.batch_size)
-    train(args.max_epochs, model, optimizer, train_dataloader, val_dataloader, args)
+    train(args.max_epochs, model, optimizer, train_dataloader, val_dataloader, test_dataloader, args)
 
 
 if __name__ == '__main__':

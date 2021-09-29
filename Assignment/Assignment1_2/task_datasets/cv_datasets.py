@@ -1,7 +1,7 @@
 '''
 Author: Xiang Pan
 Date: 2021-09-09 17:23:15
-LastEditTime: 2021-09-29 18:59:29
+LastEditTime: 2021-09-29 19:54:19
 LastEditors: Xiang Pan
 Description: 
 FilePath: /Assignment1_2/task_datasets/cv_datasets.py
@@ -66,7 +66,7 @@ def get_cv_dataloader(batch_size = 32, augument = False):
         train_dataset = torch.utils.data.ConcatDataset\
                     (
                         [
-                            CVDataset("train", transform=data_transforms),
+                            CVDataset("train", transform=None),
                             CVDataset("train", transform=data_jitter_brightness),
                             CVDataset("train", transform=data_jitter_hue),
                             CVDataset("train", transform=data_jitter_contrast),
@@ -78,8 +78,8 @@ def get_cv_dataloader(batch_size = 32, augument = False):
                             CVDataset("train", transform=data_shear),
                         ]
                     )
-        val_dataset = CVDataset("validation", transform=data_transforms)
-        test_dataset = CVDataset("testing", transform=data_transforms)
+        val_dataset = CVDataset("validation", transform=None)
+        test_dataset = CVDataset("testing", transform=None)
     else:
         train_dataset, val_dataset, test_dataset = get_cv_dataset(batch_size)
     
