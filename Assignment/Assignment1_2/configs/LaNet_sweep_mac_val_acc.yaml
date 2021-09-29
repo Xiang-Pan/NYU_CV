@@ -1,0 +1,19 @@
+program: main.py
+method: bayes 
+metric:
+  name: mac_val_acc
+  goal: maximize
+parameters:
+  learning_rate:
+    max: 0.01
+    min: 0.001
+  batch_size:
+    values: [32, 64, 128, 256, 512]
+  warmup_epochs:
+    min: 1
+    max: 30
+  max_epochs:
+    min: 30
+    max: 80
+  backbone_name:
+    values: ["LaNet"]
