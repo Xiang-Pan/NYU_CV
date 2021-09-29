@@ -1,7 +1,7 @@
 '''
 Author: Xiang Pan
 Date: 2021-09-09 17:21:28
-LastEditTime: 2021-09-29 19:02:41
+LastEditTime: 2021-09-29 19:24:11
 LastEditors: Xiang Pan
 Description: 
 FilePath: /Assignment1_2/main.py
@@ -149,7 +149,8 @@ def train(max_epochs, model, optimizer, train_loader, val_loader, args):
         file_ids = pickle.load(open('./cached_datasets/testing/file_ids.pkl', 'rb'))
         for i, data in enumerate(test_data):
             data = data.unsqueeze(0)
-            data = data_transforms(data)
+            if args.aug:
+                data = data_transforms(data)
             data = data.cuda()
             output = model(data)
             pred = output.data.max(1, keepdim=True)[1].item()
