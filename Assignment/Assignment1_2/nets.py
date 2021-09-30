@@ -1,7 +1,7 @@
 '''
 Author: Xiang Pan
 Date: 2021-09-09 17:29:27
-LastEditTime: 2021-09-30 01:16:50
+LastEditTime: 2021-09-30 01:45:07
 LastEditors: Xiang Pan
 Description: 
 FilePath: /Assignment1_2/nets.py
@@ -12,7 +12,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 from efficientnet_pytorch import EfficientNet
 from torchvision import models
-from task_models.highway import HighwayMLP
+from task_models.highway import HighwayMLP, HighwayLinear
 
 class MY_CE(nn.Module):
     def __init__(self, eps=0.8, reduction="mean", pred_normalization = False): 
@@ -209,9 +209,9 @@ class TfmNetHighway(nn.Module):
         self.bn3 = nn.BatchNorm2d(250)
         self.conv_drop = nn.Dropout2d()
         # self.fc1 = nn.Linear(250*2*2, 350)
-        self.fc1 = nn.Linear(250*2*2, 350)
-        self.hightway = HighwayMLP(350, 350)
-        self.fc2 = nn.Linear(350, num_classes)
+        self.fc1 = HighwayLinear(250*2*2, 350)
+        # self.hightway = HighwayMLP(350, 350)
+        self.fc2 = HighwayLinear(350, num_classes)
 
         self.localization = nn.Sequential(
             nn.Conv2d(3, 8, kernel_size=7),
@@ -256,7 +256,7 @@ class TfmNetHighway(nn.Module):
         x = x.view(-1, 250*2*2)
         x = F.relu(self.fc1(x))
         x = F.dropout(x, training=self.training)
-        x = self.hightway(x)
+        # x = self.hightway(x)
         logit = self.fc2(x)
         return logit
 

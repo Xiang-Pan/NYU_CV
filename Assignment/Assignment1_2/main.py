@@ -1,7 +1,7 @@
 '''
 Author: Xiang Pan
 Date: 2021-09-09 17:21:28
-LastEditTime: 2021-09-30 01:36:55
+LastEditTime: 2021-09-30 02:13:10
 LastEditors: Xiang Pan
 Description: 
 FilePath: /Assignment1_2/main.py
@@ -29,7 +29,7 @@ from option import *
 from sklearn.model_selection import KFold
 
 wandb.init(project="assignment1_2")
-torch.manual_seed(2)
+torch.manual_seed(1)
 
 def get_scheduler(optimizer, args):
     scheduler_name = args.scheduler_name
@@ -56,8 +56,6 @@ def train(max_epochs, model, optimizer, train_loader, val_loader, test_loader, a
     
     max_train_acc = 0
     max_val_acc = 0
-    
-
 
     optimizer.zero_grad()
     optimizer.step()

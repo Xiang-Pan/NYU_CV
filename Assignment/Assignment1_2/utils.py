@@ -1,7 +1,7 @@
 '''
 Author: Xiang Pan
 Date: 2021-09-27 20:56:03
-LastEditTime: 2021-09-30 01:00:21
+LastEditTime: 2021-09-30 01:51:48
 LastEditors: Xiang Pan
 Description: 
 FilePath: /Assignment1_2/utils.py
@@ -159,4 +159,8 @@ data_center = transforms.Compose([
 data_grayscale = transforms.Compose([
     transforms.Grayscale(num_output_channels=3),
     # transforms.Normalize((0.3337, 0.3064, 0.3171), ( 0.2672, 0.2564, 0.2629))
+])
+
+data_random_aug = transforms.Compose([
+    transforms.RandAugment()
 ])
