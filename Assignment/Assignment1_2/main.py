@@ -1,7 +1,7 @@
 '''
 Author: Xiang Pan
 Date: 2021-09-09 17:21:28
-LastEditTime: 2021-09-29 23:24:14
+LastEditTime: 2021-09-30 01:36:55
 LastEditors: Xiang Pan
 Description: 
 FilePath: /Assignment1_2/main.py
@@ -29,8 +29,7 @@ from option import *
 from sklearn.model_selection import KFold
 
 wandb.init(project="assignment1_2")
-
-torch.manual_seed(1)
+torch.manual_seed(2)
 
 def get_scheduler(optimizer, args):
     scheduler_name = args.scheduler_name
@@ -55,8 +54,6 @@ def get_scheduler(optimizer, args):
 
 def train(max_epochs, model, optimizer, train_loader, val_loader, test_loader, args):
     
-    # print(len(train_loader))
-    # print(len(train_loader))
     max_train_acc = 0
     max_val_acc = 0
     
@@ -64,7 +61,9 @@ def train(max_epochs, model, optimizer, train_loader, val_loader, test_loader, a
 
     optimizer.zero_grad()
     optimizer.step()
-    if args.label_smoothing > 0:
+    if args.focal_loss:
+        criterion = LossWrapper()
+    elif args.label_smoothing > 0:
         criterion = LabelSmoothing(smoothing=args.label_smoothing)
     else:
         criterion = nn.CrossEntropyLoss()
@@ -186,6 +185,7 @@ def get_auto_name(args):
                             str(args.warmup_epochs),
                             str(args.weight_decay),
                             str(args.label_smoothing),
+                            args.optimizer_name
                         ])
     return auto_name
 
@@ -202,8 +202,10 @@ def main():
     model = NET(backbone_name=args.backbone_name, num_classes=43, pretrained=False)
     model.apply(weight_init)
     model = model.cuda()
-    optimizer = optim.Adam(model.parameters(), lr=args.learning_rate)
-    # optimizer = optim.Adam(model.parameters(), betas=[0.9, 0.999], lr=args.learning_rate, eps=1e-8)
+    if args.optimizer_name == "adam":
+        optimizer = optim.Adam(model.parameters(), lr=args.learning_rate, weight_decay=args.weight_decay)
+    elif args.optimizer_name == "sgd":
+        optimizer = optim.SGD(model.parameters(), lr=args.learning_rate, momentum=0.9, weight_decay=args.weight_decay)
     # no_decay = list()
     # decay = list()
     # for m in model.modules():
@@ -215,7 +217,7 @@ def main():
     #     elif hasattr(m, 'bias'):
     #         no_decay.append(m.bias)
     # optimizer = optim.SGD(model.parameters(), lr=args.learning_rate, momentum=0.9, weight_decay=0.0005)
-    # optimizer = optim.SGD(model.parameters(), lr=args.learning_rate, momentum=0.9, weight_decay=0.0005)
+    #
 
     # {'params': no_decay, 'weight_decay', 0}, {'params': decay}, **kwargs]
     train_dataloader, val_dataloader, test_dataloader = get_cv_dataloader(batch_size = args.batch_size)

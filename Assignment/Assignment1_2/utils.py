@@ -1,7 +1,7 @@
 '''
 Author: Xiang Pan
 Date: 2021-09-27 20:56:03
-LastEditTime: 2021-09-29 23:08:18
+LastEditTime: 2021-09-30 01:00:21
 LastEditors: Xiang Pan
 Description: 
 FilePath: /Assignment1_2/utils.py
@@ -11,6 +11,15 @@ import torch
 import numpy as np
 import torch.nn as nn
 import torchvision.transforms as transforms
+from kornia.losses import focal_loss 
+
+class LossWrapper(nn.Module):
+    def __init__(self):
+        super(LossWrapper, self).__init__()
+        print("focal_loss")
+
+    def forward(self, input, target):
+        return focal_loss(input, target, alpha=0.5, gamma=2.0, reduction='mean')
 
 class LabelSmoothing(nn.Module):
     """
