@@ -1,7 +1,7 @@
 '''
 Author: Xiang Pan
 Date: 2021-09-09 17:23:15
-LastEditTime: 2021-09-29 19:54:19
+LastEditTime: 2021-09-29 19:55:59
 LastEditors: Xiang Pan
 Description: 
 FilePath: /Assignment1_2/task_datasets/cv_datasets.py
@@ -93,6 +93,9 @@ def get_cv_dataloader(batch_size = 32, augument = False):
     return train_loader, val_loader, test_loader
 
 if __name__ == "__main__":
-    dataset = CVDataset("train")
-    dataset[0]
-    print(dataset[0][0].shape)
+    # dataset = CVDataset("train")
+    # dataset[0]
+    # print(dataset[0][0].shape)
+    train_dataset, val_dataset, test_dataset = get_cv_dataset(batch_size=32)
+    print(test_dataset.shape)
+    

@@ -1,7 +1,7 @@
 '''
 Author: Xiang Pan
 Date: 2021-09-09 17:21:28
-LastEditTime: 2021-09-29 19:47:47
+LastEditTime: 2021-09-29 20:22:51
 LastEditors: Xiang Pan
 Description: 
 FilePath: /Assignment1_2/main.py
@@ -100,11 +100,6 @@ def train(max_epochs, model, optimizer, train_loader, val_loader, test_loader, a
             
             train_loss.backward()
             optimizer.step()
-
-            
-            # wandb.log({'mixup_train_acc': mixup_acc})
-            
-            
             
         train_acc = train_acc_metric.compute()
         wandb.log({'train_acc_epoch': train_acc, "epoch": cur_epoch})
@@ -112,7 +107,6 @@ def train(max_epochs, model, optimizer, train_loader, val_loader, test_loader, a
         max_train_acc = max(max_train_acc, train_acc)
         wandb.log({'max_train_acc': max_train_acc, "epoch": cur_epoch})
 
-        # scheduler.step() 
         # val
         model.eval()
         val_acc_metric = torchmetrics.Accuracy().cuda()
@@ -144,24 +138,21 @@ def train(max_epochs, model, optimizer, train_loader, val_loader, test_loader, a
 
         output_file = open(outfile_name, "w")
         
-        dataframe_dict = {"Filename" : [], "ClassId": []}
-        # test_data = torch.load('./cached_datasets/testing/test.pt')
+        # dataframe_dict = {"Filename" : [], "ClassId": []}
+        df = pd.DataFrame(columns=['Filename', 'ClassId'])
         file_ids = pickle.load(open('./cached_datasets/testing/file_ids.pkl', 'rb'))
         
-        for batch_idx, (data, target) in enumerate(test_loader):
-            
+        for batch_idx, data in enumerate(test_loader):
+    
             data = data.cuda()
-            target = target.cuda()
             output = model(data)
-            preds = output.softmax(dim=-1)
-            file_id = file_ids[batch_idx*args.batch_size:(batch_idx+1)*args.batch_size][0:5]
-            dataframe_dict['Filename'].append(file_id)
-            dataframe_dict['ClassId'].append(preds)
-
+            preds = torch.argmax(output.softmax(dim=-1), dim = -1).cpu().detach().tolist()
             
+            file_id = file_ids[batch_idx*args.batch_size:(batch_idx+1)*args.batch_size]
+            dft = pd.DataFrame(columns=['Filename', 'ClassId'], data=list(zip(file_id, preds)))
+            df = df.append(dft, ignore_index=True)
 
-        df = pd.DataFrame(data=dataframe_dict)
-        df.to_csv(outfile_name, index=False)
+        df.to_csv("tet", index=False)
         print("Written to csv file {}".format(outfile_name))
         
         if scheduler is not None:
@@ -170,43 +161,8 @@ def train(max_epochs, model, optimizer, train_loader, val_loader, test_loader, a
                 scheduler.step(np.around(val_acc.cpu().numpy(), decimals=2))
                 wandb.log({'learning_rate': optimizer.param_groups[0]['lr'], "epoch": cur_epoch})
             else:
-                scheduler.step()
-            
-        # for batch_idx, (data, target) in enumerate(val_loader):
-        #     data = data.cuda()
-        #     target = target.cuda()
-        #     output = model(data)
-
-        #     val_loss = F.cross_entropy(output, target)
-        #     preds = output.softmax(dim=-1)
-            # acc = acc_metric(preds, target).cuda()
-            # wandb.log({'val_loss': val_loss, "epoch": cur_epoch})
-            # wandb.log({'val_acc': acc, "epoch": cur_epoch})
-            # if batch_idx % log_interval == 0:
-            #     print('Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
-            #         epoch, batch_idx * len(data), len(train_loader.dataset),
-            #         100. * batch_idx / len(train_loader), loss.item()))
-        # train(epoch)
-        # validation()
-        # model_file = 'model_' + str(epoch) + '.pth'
-        # torch.save(model.state_dict(), model_file)
-        # print('\nSaved model to ' + model_file + '.')
-
-# def validation():
-#     model.eval()
-#     validation_loss = 0
-#     correct = 0
-#     for data, target in val_loader:
-#         output = model(data)
-#         validation_loss += F.nll_loss(output, target, reduction="sum").item() # sum up batch loss
-#         pred = output.data.max(1, keepdim=True)[1] # get the index of the max log-probability
-#         correct += pred.eq(target.data.view_as(pred)).cpu().sum()
-
-#     validation_loss /= len(val_loader.dataset)
-#     print('\nValidation set: Average loss: {:.4f}, Accuracy: {}/{} ({:.0f}%)\n'.format(
-#         validation_loss, correct, len(val_loader.dataset),
-#         100. * correct / len(val_loader.dataset)))
-
+                scheduler.step(cur_epoch)
+                
 def get_auto_name(args):
     if args.scheduler_name is None:
         scheduler_name = 'None'
