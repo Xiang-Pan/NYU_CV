@@ -1,7 +1,7 @@
 '''
 Author: Xiang Pan
 Date: 2021-09-09 17:21:28
-LastEditTime: 2021-09-29 23:22:38
+LastEditTime: 2021-09-29 23:24:14
 LastEditors: Xiang Pan
 Description: 
 FilePath: /Assignment1_2/main.py
@@ -16,7 +16,7 @@ import torch.optim as optim
 import os
 import sys
 import math
-from cached_datasets.evaluate import *
+from task_datasets.evaluate import *
 
 from task_datasets.cv_datasets import get_cv_dataloader
 import wandb
