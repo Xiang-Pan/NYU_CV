@@ -1,0 +1,26 @@
+program: main.py
+method: bayes 
+metric:
+  name: test_acc
+  goal: maximize
+parameters:
+  learning_rate:
+    max: 0.001
+    min: 0.0003
+  batch_size:
+    values: [32, 64, 128, 256, 512]
+  warmup_epochs:
+    min: 1
+    max: 8
+  max_epochs:
+    min: 100
+    max: 150
+  label_smoothing:
+    min: 0.006
+    max: 0.012 
+  weight_decay:
+    min: 0.0
+    max: 0.0001
+  sweep_aug:
+    values: [0,1]
+

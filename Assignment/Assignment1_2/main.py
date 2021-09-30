@@ -1,7 +1,7 @@
 '''
 Author: Xiang Pan
 Date: 2021-09-09 17:21:28
-LastEditTime: 2021-09-30 02:13:10
+LastEditTime: 2021-09-30 04:37:52
 LastEditors: Xiang Pan
 Description: 
 FilePath: /Assignment1_2/main.py
@@ -17,6 +17,7 @@ import os
 import sys
 import math
 from task_datasets.evaluate import *
+import ttach as tta
 
 from task_datasets.cv_datasets import get_cv_dataloader
 import wandb
@@ -29,7 +30,6 @@ from option import *
 from sklearn.model_selection import KFold
 
 wandb.init(project="assignment1_2")
-torch.manual_seed(1)
 
 def get_scheduler(optimizer, args):
     scheduler_name = args.scheduler_name
@@ -191,6 +191,7 @@ def main():
     # print(1)
     
     args = get_option()
+    torch.manual_seed(args.seed)
     if args.name is None:
         wandb.run.name = get_auto_name(args)
     else:
@@ -199,6 +200,7 @@ def main():
     nclasses = 43 # GTSRB has 43 classes
     model = NET(backbone_name=args.backbone_name, num_classes=43, pretrained=False)
     model.apply(weight_init)
+    # model = tta.ClassificationTTAWrapper(model, tta.aliases.d4_transform(), merge_mode='tsharpen')
     model = model.cuda()
     if args.optimizer_name == "adam":
         optimizer = optim.Adam(model.parameters(), lr=args.learning_rate, weight_decay=args.weight_decay)
@@ -218,7 +220,12 @@ def main():
     #
 
     # {'params': no_decay, 'weight_decay', 0}, {'params': decay}, **kwargs]
-    train_dataloader, val_dataloader, test_dataloader = get_cv_dataloader(batch_size = args.batch_size)
+    # print(args.aug)
+    if args.sweep_aug == 1:
+        args.aug = True
+    else:
+        args.aug = False
+    train_dataloader, val_dataloader, test_dataloader = get_cv_dataloader(batch_size = args.batch_size, augument=args.aug)
     train(args.max_epochs, model, optimizer, train_dataloader, val_dataloader, test_dataloader, args)
 
 

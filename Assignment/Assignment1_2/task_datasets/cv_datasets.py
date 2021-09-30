@@ -1,7 +1,7 @@
 '''
 Author: Xiang Pan
 Date: 2021-09-09 17:23:15
-LastEditTime: 2021-09-29 19:55:59
+LastEditTime: 2021-09-30 04:33:01
 LastEditors: Xiang Pan
 Description: 
 FilePath: /Assignment1_2/task_datasets/cv_datasets.py
@@ -15,6 +15,7 @@ import torch.optim as optim
 from torchvision import datasets, transforms
 import torch.nn.functional as F
 from utils import *
+from randaugment import RandAugment
 
 # batch_size = 32
 # momentum = 0.9
@@ -62,11 +63,13 @@ def get_cv_dataset(batch_size = 32):
 
 def get_cv_dataloader(batch_size = 32, augument = False):
     
+    print(augument, " aua")
     if augument:
         train_dataset = torch.utils.data.ConcatDataset\
                     (
                         [
                             CVDataset("train", transform=None),
+                            # CVDataset("train", transform=data_random_aug),
                             CVDataset("train", transform=data_jitter_brightness),
                             CVDataset("train", transform=data_jitter_hue),
                             CVDataset("train", transform=data_jitter_contrast),
