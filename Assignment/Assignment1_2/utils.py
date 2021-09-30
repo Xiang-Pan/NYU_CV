@@ -1,7 +1,7 @@
 '''
 Author: Xiang Pan
 Date: 2021-09-27 20:56:03
-LastEditTime: 2021-09-29 19:53:30
+LastEditTime: 2021-09-29 23:08:18
 LastEditors: Xiang Pan
 Description: 
 FilePath: /Assignment1_2/utils.py
@@ -33,6 +33,9 @@ class LabelSmoothing(nn.Module):
         smooth_loss = -logprobs.mean(dim=-1)
         loss = self.confidence * nll_loss + self.smoothing * smooth_loss
         return loss.mean()
+
+
+
 
 def weight_init(m):
     if isinstance(m, nn.Linear):

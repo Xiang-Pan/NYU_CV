@@ -1,7 +1,7 @@
 '''
 Author: Xiang Pan
 Date: 2021-09-09 17:21:28
-LastEditTime: 2021-09-29 20:22:51
+LastEditTime: 2021-09-29 23:22:38
 LastEditors: Xiang Pan
 Description: 
 FilePath: /Assignment1_2/main.py
@@ -16,6 +16,7 @@ import torch.optim as optim
 import os
 import sys
 import math
+from cached_datasets.evaluate import *
 
 from task_datasets.cv_datasets import get_cv_dataloader
 import wandb
@@ -63,7 +64,10 @@ def train(max_epochs, model, optimizer, train_loader, val_loader, test_loader, a
 
     optimizer.zero_grad()
     optimizer.step()
-    criterion = nn.CrossEntropyLoss()
+    if args.label_smoothing > 0:
+        criterion = LabelSmoothing(smoothing=args.label_smoothing)
+    else:
+        criterion = nn.CrossEntropyLoss()
     
     scheduler = get_scheduler(optimizer, args)
     
@@ -89,13 +93,13 @@ def train(max_epochs, model, optimizer, train_loader, val_loader, test_loader, a
             wandb.log({'train_loss': train_loss})
             wandb.log({'train_acc': acc})
 
-            mixup = False 
-            if mixup:
-                mixed_x, y_a, y_b, lam = mixup_data(data, target)
-                mixed_pred = model(mixed_x)
-                mixup_loss = mixup_criterion(criterion, mixed_pred, y_a, y_b, lam)
-                train_loss += mixup_loss
-                wandb.log({'mixup_train_loss': mixup_loss.item()})
+            if args.mixup:
+                if cur_epoch > args.warmup_epochs:
+                    mixed_x, y_a, y_b, lam = mixup_data(data, target)
+                    mixed_pred = model(mixed_x)
+                    mixup_loss = mixup_criterion(criterion, mixed_pred, y_a, y_b, lam)
+                    train_loss += mixup_loss
+                    wandb.log({'mixup_train_loss': mixup_loss.item()})
                 
             
             train_loss.backward()
@@ -135,6 +139,7 @@ def train(max_epochs, model, optimizer, train_loader, val_loader, test_loader, a
         if not os.path.exists(path):
             os.system("mkdir -p %s" % path)
         outfile_name = path+"/"+str(cur_epoch)+".csv"
+        model_name = path+"/"+str(cur_epoch)+".pt"
 
         output_file = open(outfile_name, "w")
         
@@ -152,8 +157,12 @@ def train(max_epochs, model, optimizer, train_loader, val_loader, test_loader, a
             dft = pd.DataFrame(columns=['Filename', 'ClassId'], data=list(zip(file_id, preds)))
             df = df.append(dft, ignore_index=True)
 
-        df.to_csv("tet", index=False)
+        test_acc = evaluate_pred_df(df)
+        wandb.log({'test_acc': test_acc, "epoch": cur_epoch})
+        df.to_csv(outfile_name, index=False)
         print("Written to csv file {}".format(outfile_name))
+        torch.save(model, model_name)
+        
         
         if scheduler is not None:
             if scheduler.__class__.__name__ == 'ReduceLROnPlateau':
@@ -162,6 +171,7 @@ def train(max_epochs, model, optimizer, train_loader, val_loader, test_loader, a
                 wandb.log({'learning_rate': optimizer.param_groups[0]['lr'], "epoch": cur_epoch})
             else:
                 scheduler.step(cur_epoch)
+                wandb.log({'learning_rate': scheduler.get_last_lr(), "epoch": cur_epoch})
                 
 def get_auto_name(args):
     if args.scheduler_name is None:
@@ -175,6 +185,7 @@ def get_auto_name(args):
                             str(args.batch_size),
                             str(args.warmup_epochs),
                             str(args.weight_decay),
+                            str(args.label_smoothing),
                         ])
     return auto_name
 
