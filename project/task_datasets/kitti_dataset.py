@@ -1,7 +1,7 @@
 '''
 Author: Xiang Pan
 Date: 2021-11-10 09:01:19
-LastEditTime: 2021-12-14 18:16:42
+LastEditTime: 2021-12-14 20:34:45
 LastEditors: Xiang Pan
 Description: 
 FilePath: /project/task_datasets/kitti_dataset.py
@@ -98,6 +98,7 @@ class semantic_dataset(Dataset):
     def __init__(self, task = "KITTI", split = 'train', transform = None):
         self.split = split
         path = "/".join(["./cached_datasets", task, split])
+        print(task)
         if task == "KITTI":
             self.void_labels = [0, 1, 2, 3, 4, 5, 6, 9, 10, 14, 15, 16, 18, 29, 30, -1]
             self.valid_labels = [7, 8, 11, 12, 13, 17, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 31, 32, 33]
@@ -130,21 +131,6 @@ class semantic_dataset(Dataset):
             # print(self.class_map)
             self.img_path = './cached_datasets/unity-streetview-low-res/RGB'
             self.mask_path = './cached_datasets/unity-streetview-low-res/SemanticSegmentation_gray/'
-
-        elif task == "unity-streetview-medium-res":
-            self.img_size = (474, 842)
-            self.img_resize_size = (842, 474)
-            self.transform_image_size = (3, 474, 842)
-            self.void_labels = [
-                i for i in range(35,255)
-            ]
-            self.valid_labels = [
-                i for i in range(0, 35)
-            ]
-            self.class_map = dict(zip(self.valid_labels, range(35)))
-
-            self.img_path = './cached_datasets/unity-streetview-medium-res/RGB/'
-            self.mask_path = './cached_datasets/unity-streetview-medium-res/SemanticSegmentation/'
         elif task == "unity-streetview-high-res":
             self.img_size = (474, 842)
             self.img_resize_size = (842, 474)
@@ -160,9 +146,59 @@ class semantic_dataset(Dataset):
             self.img_resize_size = (842, 474)
             self.transform_image_size = (3, 474, 842)
             self.class_map = dict(zip(self.valid_labels, range(34)))
-
             self.img_path = './cached_datasets/unity-streetview-high-res/RGB/'
             self.mask_path = './cached_datasets/unity-streetview-high-res/SemanticSegmentation_gray/'
+        elif task == "unity-cameraview-low-res":
+            self.img_size = (474, 842)
+            self.img_resize_size = (842, 474)
+            self.transform_image_size = (3, 474, 842)
+            self.ignore_index = 250
+            self.void_labels = [
+                0
+            ]
+            self.valid_labels = [
+                i for i in range(1, 35)
+            ]
+            self.img_size = (474, 842)
+            self.img_resize_size = (842, 474)
+            self.transform_image_size = (3, 474, 842)
+            self.class_map = dict(zip(self.valid_labels, range(34)))
+            self.img_path = './cached_datasets/unity-cameraview-low-res/RGB/'
+            self.mask_path = './cached_datasets/unity-cameraview-low-res/SemanticSegmentation_gray/'
+        elif task == "unity-cameraview-high-res":
+            self.img_size = (474, 842)
+            self.img_resize_size = (842, 474)
+            self.transform_image_size = (3, 474, 842)
+            self.ignore_index = 250
+            self.void_labels = [
+                0
+            ]
+            self.valid_labels = [
+                i for i in range(1, 35)
+            ]
+            self.img_size = (474, 842)
+            self.img_resize_size = (842, 474)
+            self.transform_image_size = (3, 474, 842)
+            self.class_map = dict(zip(self.valid_labels, range(34)))
+            self.img_path = './cached_datasets/unity-cameraview-high-res/RGB/'
+            self.mask_path = './cached_datasets/unity-cameraview-high-res/SemanticSegmentation_gray/'
+
+        # elif task == "unity-streetview-medium-res":
+        #     self.img_size = (474, 842)
+        #     self.img_resize_size = (842, 474)
+        #     self.transform_image_size = (3, 474, 842)
+        #     self.void_labels = [
+        #         i for i in range(35,255)
+        #     ]
+        #     self.valid_labels = [
+        #         i for i in range(0, 35)
+        #     ]
+        #     self.class_map = dict(zip(self.valid_labels, range(35)))
+
+        #     self.img_path = './cached_datasets/unity-streetview-medium-res/RGB/'
+        #     self.mask_path = './cached_datasets/unity-streetview-medium-res/SemanticSegmentation/'
+        
+
 
         self.transform = transform
         if not self.transform:
@@ -170,6 +206,7 @@ class semantic_dataset(Dataset):
             transforms.ToTensor(),
             transforms.Normalize(mean = [0.35675976, 0.37380189, 0.3764753], std = [0.32064945, 0.32098866, 0.32325324])
         ])
+        print(self.img_path)
         self.img_list = self.get_filenames(self.img_path)
         if self.split == 'train':
             self.mask_list = self.get_filenames(self.mask_path)
@@ -197,9 +234,6 @@ class semantic_dataset(Dataset):
         mask = None
         if self.split in ['train', 'val']:
             mask = cv2.imread(self.mask_list[idx], cv2.IMREAD_GRAYSCALE)
-            # save = mask.copy()
-            # mask = cv2.imread(self.mask_list[idx])
-            # print(mask.shape)
             mask = cv2.resize(mask, self.img_resize_size)
             mask = self.encode_segmap(mask)
             assert(mask.shape == self.img_size)

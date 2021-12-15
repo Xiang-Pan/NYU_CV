@@ -1,7 +1,7 @@
 '''
 Author: Xiang Pan
 Date: 2021-11-10 19:57:30
-LastEditTime: 2021-12-14 18:52:01
+LastEditTime: 2021-12-14 20:40:12
 LastEditors: Xiang Pan
 Description: 
 FilePath: /project/main.py
@@ -67,8 +67,8 @@ def main(hparams: Namespace):
     # saves a file like: my/path/epoch=2-val_loss=0.02-other_metric=0.03.ckpt
     checkpoint_callback = ModelCheckpoint(
         dirpath='./outputs/'+hparams.log_name,
-        save_last=True,
         every_n_epochs=1,
+        save_top_k=-1,
         filename='{epoch}-{val/loss:.2f}-{val/mIOU:.2f}',
     )
     # ------------------------
