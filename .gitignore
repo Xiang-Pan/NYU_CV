@@ -12,6 +12,7 @@ project/
 __pycache__/
 *.py[cod]
 *$py.class
+**/.virtural_documents/
 
 # C extensions
 *.so
