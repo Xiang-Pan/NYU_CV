@@ -12,7 +12,11 @@ project/
 __pycache__/
 *.py[cod]
 *$py.class
-**/.virtural_documents/
+**/.virtural_documentsx
+
+# jupyter 
+**/.ipynb_checkpoints
+**/.virtual_documents
 
 # C extensions
 *.so
